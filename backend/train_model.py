@@ -1,76 +1,3 @@
-# import pandas as pd
-# import re
-# import string
-# import pickle
-
-# from sklearn.model_selection import train_test_split
-# from sklearn.feature_extraction.text import TfidfVectorizer
-# from sklearn.svm import LinearSVC
-# from sklearn.metrics import accuracy_score
-
-# # -----------------------------
-# # TEXT CLEANING FUNCTION
-# # -----------------------------
-# def clean_text(text):
-#     text = text.lower()
-#     text = re.sub(r'\d+', '', text)  # remove numbers
-#     text = text.translate(str.maketrans('', '', string.punctuation))  # remove punctuation
-#     return text
-
-# # -----------------------------
-# # LOAD DATASET
-# # -----------------------------
-# data = pd.read_csv("reviews.csv")
-
-# # Clean text
-# data['review'] = data['review'].apply(clean_text)
-
-# X = data['review']
-# y = data['label']
-
-# # -----------------------------
-# # SPLIT DATA
-# # -----------------------------
-# X_train, X_test, y_train, y_test = train_test_split(
-#     X, y, test_size=0.2, random_state=42
-# )
-
-# # -----------------------------
-# # TF-IDF (Improved)
-# # -----------------------------
-# vectorizer = TfidfVectorizer(
-#     stop_words='english',
-#     max_features=5000,
-#     ngram_range=(1, 2)   # uni + bi-grams
-# )
-
-# X_train_vec = vectorizer.fit_transform(X_train)
-# X_test_vec = vectorizer.transform(X_test)
-
-# # -----------------------------
-# # MODEL (SVM - BEST FOR TEXT)
-# # -----------------------------
-# model = LinearSVC()
-# model.fit(X_train_vec, y_train)
-
-# # -----------------------------
-# # EVALUATE
-# # -----------------------------
-# y_pred = model.predict(X_test_vec)
-# accuracy = accuracy_score(y_test, y_pred)
-
-# print(f"Model Accuracy: {accuracy * 100:.2f}%")
-
-# # -----------------------------
-# # SAVE MODEL
-# # -----------------------------
-# pickle.dump(model, open("model.pkl", "wb"))
-# pickle.dump(vectorizer, open("vectorizer.pkl", "wb"))
-
-# print("Model trained and saved successfully!")
-
-
-
 import pandas as pd
 import re
 import string
@@ -78,27 +5,32 @@ import pickle
 
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression   # ✅ CHANGED
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
 # -----------------------------
 # TEXT CLEANING FUNCTION
 # -----------------------------
 def clean_text(text):
-    text = text.lower()
+    text = str(text).lower()
     text = re.sub(r'\d+', '', text)
     text = text.translate(str.maketrans('', '', string.punctuation))
     return text
 
 # -----------------------------
-# LOAD DATASET
+# LOAD DATASET (CSV ONLY)
 # -----------------------------
 data = pd.read_csv("reviews.csv")
 
-data['review'] = data['review'].apply(clean_text)
+if "review" not in data.columns or "label" not in data.columns:
+    raise ValueError("CSV must contain 'review' and 'label' columns")
 
-X = data['review']
-y = data['label']
+data["review"] = data["review"].apply(clean_text)
+
+X = data["review"]
+y = data["label"]
 
 # -----------------------------
 # SPLIT DATA
@@ -111,7 +43,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 # TF-IDF
 # -----------------------------
 vectorizer = TfidfVectorizer(
-    stop_words='english',
+    stop_words="english",
     max_features=5000,
     ngram_range=(1, 2)
 )
@@ -120,23 +52,40 @@ X_train_vec = vectorizer.fit_transform(X_train)
 X_test_vec = vectorizer.transform(X_test)
 
 # -----------------------------
-# MODEL (LOGISTIC REGRESSION)
+# MODEL 1: Logistic Regression
 # -----------------------------
-model = LogisticRegression(max_iter=1000)   # ✅ CHANGED
-model.fit(X_train_vec, y_train)
+lr_model = LogisticRegression(max_iter=1000)
+lr_model.fit(X_train_vec, y_train)
 
 # -----------------------------
-# EVALUATE
+# MODEL 2: Naive Bayes
 # -----------------------------
-y_pred = model.predict(X_test_vec)
-accuracy = accuracy_score(y_test, y_pred)
-
-print(f"Model Accuracy: {accuracy * 100:.2f}%")
+nb_model = MultinomialNB()
+nb_model.fit(X_train_vec, y_train)
 
 # -----------------------------
-# SAVE MODEL
+# MODEL 3: Random Forest
 # -----------------------------
-pickle.dump(model, open("model.pkl", "wb"))
+rf_model = RandomForestClassifier(n_estimators=100)
+rf_model.fit(X_train_vec, y_train)
+
+# -----------------------------
+# EVALUATE ALL MODELS
+# -----------------------------
+lr_acc = accuracy_score(y_test, lr_model.predict(X_test_vec))
+nb_acc = accuracy_score(y_test, nb_model.predict(X_test_vec))
+rf_acc = accuracy_score(y_test, rf_model.predict(X_test_vec))
+
+print(f"Logistic Regression Accuracy: {lr_acc * 100:.2f}%")
+print(f"Naive Bayes Accuracy: {nb_acc * 100:.2f}%")
+print(f"Random Forest Accuracy: {rf_acc * 100:.2f}%")
+
+# -----------------------------
+# SAVE MODELS
+# -----------------------------
+pickle.dump(lr_model, open("lr_model.pkl", "wb"))
+pickle.dump(nb_model, open("nb_model.pkl", "wb"))
+pickle.dump(rf_model, open("rf_model.pkl", "wb"))
 pickle.dump(vectorizer, open("vectorizer.pkl", "wb"))
 
-print("Model trained and saved successfully!")
+print("All models trained and saved successfully!")

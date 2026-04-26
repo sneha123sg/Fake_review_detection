@@ -1,3 +1,4 @@
+
 # from flask import Flask, request, jsonify
 # from flask_cors import CORS
 # import pandas as pd
@@ -12,13 +13,6 @@
 # model = pickle.load(open("model.pkl", "rb"))
 # vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
 
-# @app.route("/")
-# def home():
-#     return "Fake Review Detection API Running"
-
-# # -------------------------------
-# # SINGLE REVIEW
-# # -------------------------------
 # @app.route("/analyze", methods=["POST"])
 # def analyze():
 #     data = request.json
@@ -30,19 +24,14 @@
 #     vec = vectorizer.transform([review])
 
 #     prediction = model.predict(vec)[0]
-#     score = model.decision_function(vec)[0]
-
-#     confidence = abs(score)
-#     confidence = min(confidence, 1)
+#     proba = model.predict_proba(vec)[0]
 
 #     return jsonify({
 #         "prediction": "Fake" if prediction == 1 else "Genuine",
-#         "confidence": round(confidence, 2)
+#         "confidence": round(float(max(proba)), 2)
 #     })
-
-# # -------------------------------
-# # CSV UPLOAD
-# # -------------------------------
+    
+    
 # @app.route("/upload", methods=["POST"])
 # def upload():
 #     file = request.files["file"]
@@ -55,20 +44,17 @@
 #     vec = vectorizer.transform(df["review"])
 
 #     predictions = model.predict(vec)
-#     scores = model.decision_function(vec)
-
+#     proba = model.predict_proba(vec)
 #     results = []
 
 #     for i in range(len(df)):
-#         confidence = abs(scores[i])
-#         confidence = min(confidence, 1)
+#         confidence = max(proba[i])
 
 #         results.append({
 #             "review": df["review"][i],
 #             "prediction": "Fake" if predictions[i] == 1 else "Genuine",
-#             "confidence": round(confidence, 2)
+#             "confidence": round(float(confidence), 2)
 #         })
-
 #     return jsonify(results)
 
 # # -------------------------------
@@ -87,11 +73,47 @@ app = Flask(__name__)
 CORS(app)
 
 # -------------------------------
-# LOAD MODEL
+# LOAD MODELS
 # -------------------------------
-model = pickle.load(open("model.pkl", "rb"))
+lr_model = pickle.load(open("lr_model.pkl", "rb"))
+nb_model = pickle.load(open("nb_model.pkl", "rb"))
+rf_model = pickle.load(open("rf_model.pkl", "rb"))
 vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
 
+# -------------------------------
+# HELPER FUNCTION (BEST MODEL)
+# -------------------------------
+def get_best_prediction(vec):
+    # Logistic Regression
+    lr_pred = lr_model.predict(vec)[0]
+    lr_proba = max(lr_model.predict_proba(vec)[0])
+
+    # Naive Bayes
+    nb_pred = nb_model.predict(vec)[0]
+    nb_proba = max(nb_model.predict_proba(vec)[0])
+
+    # Random Forest
+    rf_pred = rf_model.predict(vec)[0]
+    rf_proba = max(rf_model.predict_proba(vec)[0])
+
+    # Choose best model (highest confidence)
+    best_conf = max(lr_proba, nb_proba, rf_proba)
+
+    if best_conf == lr_proba:
+        final_pred = lr_pred
+    elif best_conf == nb_proba:
+        final_pred = nb_pred
+    else:
+        final_pred = rf_pred
+
+    return {
+        "prediction": "Fake" if final_pred == 1 else "Genuine",
+        "confidence": round(float(best_conf), 2)
+    }
+
+# -------------------------------
+# SINGLE REVIEW
+# -------------------------------
 @app.route("/analyze", methods=["POST"])
 def analyze():
     data = request.json
@@ -102,38 +124,41 @@ def analyze():
 
     vec = vectorizer.transform([review])
 
-    prediction = model.predict(vec)[0]
-    proba = model.predict_proba(vec)[0]
+    result = get_best_prediction(vec)
 
-    return jsonify({
-        "prediction": "Fake" if prediction == 1 else "Genuine",
-        "confidence": round(float(max(proba)), 2)
-    })
-    
-    
+    return jsonify(result)
+
+# -------------------------------
+# CSV UPLOAD ONLY
+# -------------------------------
 @app.route("/upload", methods=["POST"])
 def upload():
-    file = request.files["file"]
+    file = request.files.get("file")
+
+    if not file:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    # Ensure CSV only
+    if not file.filename.endswith(".csv"):
+        return jsonify({"error": "Only CSV files are allowed"}), 400
 
     df = pd.read_csv(file)
 
     if "review" not in df.columns:
         return jsonify({"error": "CSV must contain 'review' column"}), 400
 
-    vec = vectorizer.transform(df["review"])
-
-    predictions = model.predict(vec)
-    proba = model.predict_proba(vec)
     results = []
 
-    for i in range(len(df)):
-        confidence = max(proba[i])
+    for review in df["review"]:
+        vec = vectorizer.transform([str(review)])
+        result = get_best_prediction(vec)
 
         results.append({
-            "review": df["review"][i],
-            "prediction": "Fake" if predictions[i] == 1 else "Genuine",
-            "confidence": round(float(confidence), 2)
+            "review": review,
+            "prediction": result["prediction"],
+            "confidence": result["confidence"]
         })
+
     return jsonify(results)
 
 # -------------------------------
