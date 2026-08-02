@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
-import LoadingSpinner from '../components/LoadingSpinner';
+import React, { useState } from "react";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const UploadFile = () => {
   const [file, setFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
-      const fileType = selectedFile.name.split('.').pop().toLowerCase();
-      if (fileType === 'csv' || fileType === 'json') {
+      const fileType = selectedFile.name.split(".").pop().toLowerCase();
+      if (fileType === "csv" || fileType === "json") {
         setFile(selectedFile);
-        setError('');
+        setError("");
       } else {
-        setError('Please upload a CSV file');
+        setError("Please upload a CSV file");
         setFile(null);
       }
     }
@@ -25,20 +25,20 @@ const UploadFile = () => {
     e.preventDefault();
 
     if (!file) {
-      setError('Please select a file to upload');
+      setError("Please select a file to upload");
       return;
     }
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
 
       // Simulate API call - replace with actual endpoint
       const response = await fetch("http://127.0.0.1:5000/upload", {
-        method: 'POST',
+        method: "POST",
         body: formData,
       });
 
@@ -51,7 +51,9 @@ const UploadFile = () => {
       }
     } catch (error) {
       console.error(error);
-      setError("Failed to connect to backend. Make sure Flask server is running.");
+      setError(
+        "Failed to connect to backend. Make sure Flask server is running.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -63,14 +65,21 @@ const UploadFile = () => {
         <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-black/40 border border-gray-700 text-sm mb-6">
           <span>📁 Batch Processing</span>
         </div>
-        <h1 className="text-3xl font-bold text-white mb-4">Batch File Upload</h1>
-        <p className="text-gray-400">Upload a CSV  file containing multiple reviews for analysis</p>
+        <h1 className="text-3xl font-bold text-white mb-4">
+          Batch File Upload
+        </h1>
+        <p className="text-gray-400">
+          Upload a CSV file containing multiple reviews for analysis
+        </p>
       </div>
 
       <div className="bg-black/40 border border-gray-700 rounded-xl p-8 mb-8">
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label htmlFor="file" className="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              htmlFor="file"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
               Select File (CSV)
             </label>
             <input
@@ -100,43 +109,42 @@ const UploadFile = () => {
               disabled={isLoading || !file}
               className="px-8 py-3 rounded-xl text-sm font-medium bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition active:scale-95"
             >
-              {isLoading ? <LoadingSpinner /> : 'Upload and Analyze'}
+              {isLoading ? <LoadingSpinner /> : "Upload and Analyze"}
             </button>
           </div>
         </form>
-
-        {/* <div className="mt-8 p-4 bg-violet-900/20 border border-violet-700/30 rounded-xl">
-          <h3 className="font-semibold text-white mb-2">File Format Requirements:</h3>
-          <div className="text-sm text-gray-400 space-y-2">
-            <p><strong>CSV:</strong> Should have a 'review' column containing the review text</p>
-            <p><strong>JSON:</strong> Should be an array of objects with 'review' field</p>
-            <p><strong>Example CSV:</strong> review<br />"This product is amazing!"</p>
-            <p><strong>Example JSON:</strong> {`[{"review": "This product is amazing!"}]`}</p>
-          </div>
-        </div > */}
       </div>
 
       {results && results.length > 0 && (
         <div className="bg-black/40 border border-gray-700 rounded-xl p-8">
-          <h2 className="text-2xl font-bold text-white mb-6">Analysis Results</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">
+            Analysis Results
+          </h2>
           <div className="overflow-x-auto">
             <table className="w-full table-auto">
               <thead>
                 <tr className="bg-black/30 border-b border-gray-700">
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-300">#</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-300">Review</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-300">Prediction</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-300">Confidence</th>
-                  {/* <th className="px-4 py-2 text-left text-sm font-medium text-gray-300">Model</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-300">AI Detection</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-300">Risk</th> */}
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-300">
+                    #
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-300">
+                    Review
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-300">
+                    Prediction
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-300">
+                    Confidence
+                  </th>
                 </tr>
               </thead>
 
               <tbody>
                 {results.map((result, index) => (
                   <tr key={index} className="border-t border-gray-700">
-                    <td className="px-4 py-2 text-sm text-gray-400">{index + 1}</td>
+                    <td className="px-4 py-2 text-sm text-gray-400">
+                      {index + 1}
+                    </td>
 
                     <td className="px-4 py-2 text-sm text-white max-w-md truncate">
                       {result.review}
@@ -144,10 +152,11 @@ const UploadFile = () => {
 
                     <td className="px-4 py-2">
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${result.prediction === 'Genuine'
-                          ? 'bg-green-900/30 text-green-400 border border-green-700/30'
-                          : 'bg-red-900/30 text-red-400 border border-red-700/30'
-                          }`}
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          result.prediction === "Genuine"
+                            ? "bg-green-900/30 text-green-400 border border-green-700/30"
+                            : "bg-red-900/30 text-red-400 border border-red-700/30"
+                        }`}
                       >
                         {result.prediction}
                       </span>

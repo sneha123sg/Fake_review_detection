@@ -1,69 +1,3 @@
-
-# from flask import Flask, request, jsonify
-# from flask_cors import CORS
-# import pandas as pd
-# import pickle
-
-# app = Flask(__name__)
-# CORS(app)
-
-# # -------------------------------
-# # LOAD MODEL
-# # -------------------------------
-# model = pickle.load(open("model.pkl", "rb"))
-# vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
-
-# @app.route("/analyze", methods=["POST"])
-# def analyze():
-#     data = request.json
-#     review = data.get("review")
-
-#     if not review:
-#         return jsonify({"error": "No review provided"}), 400
-
-#     vec = vectorizer.transform([review])
-
-#     prediction = model.predict(vec)[0]
-#     proba = model.predict_proba(vec)[0]
-
-#     return jsonify({
-#         "prediction": "Fake" if prediction == 1 else "Genuine",
-#         "confidence": round(float(max(proba)), 2)
-#     })
-    
-    
-# @app.route("/upload", methods=["POST"])
-# def upload():
-#     file = request.files["file"]
-
-#     df = pd.read_csv(file)
-
-#     if "review" not in df.columns:
-#         return jsonify({"error": "CSV must contain 'review' column"}), 400
-
-#     vec = vectorizer.transform(df["review"])
-
-#     predictions = model.predict(vec)
-#     proba = model.predict_proba(vec)
-#     results = []
-
-#     for i in range(len(df)):
-#         confidence = max(proba[i])
-
-#         results.append({
-#             "review": df["review"][i],
-#             "prediction": "Fake" if predictions[i] == 1 else "Genuine",
-#             "confidence": round(float(confidence), 2)
-#         })
-#     return jsonify(results)
-
-# # -------------------------------
-# # RUN SERVER
-# # -------------------------------
-# if __name__ == "__main__":
-#     app.run(debug=True)
-
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
@@ -72,17 +6,13 @@ import pickle
 app = Flask(__name__)
 CORS(app)
 
-# -------------------------------
 # LOAD MODELS
-# -------------------------------
 lr_model = pickle.load(open("lr_model.pkl", "rb"))
 nb_model = pickle.load(open("nb_model.pkl", "rb"))
 rf_model = pickle.load(open("rf_model.pkl", "rb"))
 vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
 
-# -------------------------------
 # HELPER FUNCTION (BEST MODEL)
-# -------------------------------
 def get_best_prediction(vec):
     # Logistic Regression
     lr_pred = lr_model.predict(vec)[0]
@@ -111,9 +41,7 @@ def get_best_prediction(vec):
         "confidence": round(float(best_conf), 2)
     }
 
-# -------------------------------
 # SINGLE REVIEW
-# -------------------------------
 @app.route("/analyze", methods=["POST"])
 def analyze():
     data = request.json
@@ -128,16 +56,12 @@ def analyze():
 
     return jsonify(result)
 
-# -------------------------------
 # CSV UPLOAD ONLY
-# -------------------------------
 @app.route("/upload", methods=["POST"])
 def upload():
     file = request.files.get("file")
-
     if not file:
         return jsonify({"error": "No file uploaded"}), 400
-
     # Ensure CSV only
     if not file.filename.endswith(".csv"):
         return jsonify({"error": "Only CSV files are allowed"}), 400
@@ -161,8 +85,6 @@ def upload():
 
     return jsonify(results)
 
-# -------------------------------
 # RUN SERVER
-# -------------------------------
 if __name__ == "__main__":
     app.run(debug=True)

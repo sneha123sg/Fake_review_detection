@@ -1,6 +1,6 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Search, Zap, BarChart3 } from 'lucide-react';
+import React from "react";
+import { Link } from "react-router-dom";
+import { Search, Zap, BarChart3 } from "lucide-react";
 
 const Home = () => {
   return (
@@ -14,10 +14,9 @@ const Home = () => {
 
       {/* Content */}
       <main className="relative z-10 text-center px-6 mt-10">
-        {/* Badge */}
-        <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-black/40 border border-gray-700 text-sm mb-6 animate-fade-in-up">
+        {/* <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-black/40 border border-gray-700 text-sm mb-6 animate-fade-in-up">
           <span>🤖 AI-Powered Detection</span>
-        </div>
+        </div> */}
 
         {/* Headings */}
         <h1 className="text-4xl sm:text-6xl font-semibold tracking-tighter mb-4 animate-fade-in-up delay-200">
@@ -25,13 +24,14 @@ const Home = () => {
           <span className="text-violet-500 animate-pulse">Fake Reviews</span>
         </h1>
         <h2 className="text-2xl sm:text-4xl font-semibold text-gray-300 mb-6 animate-fade-in-up delay-300">
-          Advanced AI system for <br />
-          <span className="text-white">authentic review analysis</span>
+          <span className="text-white">Know which reviews you can trust</span>
         </h2>
 
         {/* Description */}
         <p className="text-gray-400 max-w-2xl mx-auto mb-10 animate-fade-in-up delay-500">
-          “Utilizing modern Machine Learning and Natural Language Processing methods to identify fake reviews and improve reliability in online systems.”
+          “Utilizing modern Machine Learning and Natural Language Processing
+          methods to identify fake reviews and improve reliability in online
+          systems.”
         </p>
 
         {/* Action Buttons */}
@@ -54,23 +54,31 @@ const Home = () => {
         <div className="grid md:grid-cols-3 gap-8 mt-16 max-w-4xl mx-auto">
           <div className="bg-black/40 border border-gray-700 p-6 rounded-xl hover:bg-black/60 transition-all duration-500 hover:scale-105 hover:border-violet-500/50 animate-fade-in-up delay-1000 group">
             <Search className="text-violet-500 w-8 h-8 mb-4 mx-auto group-hover:animate-bounce" />
-            <h3 className="text-xl font-semibold mb-2 text-white">Accurate Detection</h3>
+            <h3 className="text-xl font-semibold mb-2 text-white">
+              Accurate Detection
+            </h3>
             <p className="text-gray-400">
-              Advanced ML algorithms analyze review patterns to identify fake content with high accuracy.
+              Advanced ML algorithms analyze review patterns to identify fake
+              content with high accuracy.
             </p>
           </div>
-          
+
           <div className="bg-black/40 border border-gray-700 p-6 rounded-xl hover:bg-black/60 transition-all duration-500 hover:scale-105 hover:border-violet-500/50 animate-fade-in-up delay-1200 group">
             <Zap className="text-violet-500 w-8 h-8 mb-4 mx-auto group-hover:animate-bounce" />
-            <h3 className="text-xl font-semibold mb-2 text-white">Fast Processing</h3>
+            <h3 className="text-xl font-semibold mb-2 text-white">
+              Fast Processing
+            </h3>
             <p className="text-gray-400">
-              Real-time analysis of reviews with instant results and confidence scores.
+              Real-time analysis of reviews with instant results and confidence
+              scores.
             </p>
           </div>
-          
+
           <div className="bg-black/40 border border-gray-700 p-6 rounded-xl hover:bg-black/60 transition-all duration-500 hover:scale-105 hover:border-violet-500/50 animate-fade-in-up delay-1400 group">
             <BarChart3 className="text-violet-500 w-8 h-8 mb-4 mx-auto group-hover:animate-bounce" />
-            <h3 className="text-xl font-semibold mb-2 text-white">Batch Analysis</h3>
+            <h3 className="text-xl font-semibold mb-2 text-white">
+              Batch Analysis
+            </h3>
             <p className="text-gray-400">
               Upload CSV files to analyze multiple reviews simultaneously.
             </p>

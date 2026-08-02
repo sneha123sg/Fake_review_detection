@@ -10,18 +10,14 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
-# -----------------------------
 # TEXT CLEANING FUNCTION
-# -----------------------------
 def clean_text(text):
     text = str(text).lower()
     text = re.sub(r'\d+', '', text)
     text = text.translate(str.maketrans('', '', string.punctuation))
     return text
 
-# -----------------------------
 # LOAD DATASET (CSV ONLY)
-# -----------------------------
 data = pd.read_csv("reviews.csv")
 
 if "review" not in data.columns or "label" not in data.columns:
@@ -32,16 +28,12 @@ data["review"] = data["review"].apply(clean_text)
 X = data["review"]
 y = data["label"]
 
-# -----------------------------
 # SPLIT DATA
-# -----------------------------
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
-# -----------------------------
 # TF-IDF
-# -----------------------------
 vectorizer = TfidfVectorizer(
     stop_words="english",
     max_features=5000,
@@ -51,27 +43,19 @@ vectorizer = TfidfVectorizer(
 X_train_vec = vectorizer.fit_transform(X_train)
 X_test_vec = vectorizer.transform(X_test)
 
-# -----------------------------
 # MODEL 1: Logistic Regression
-# -----------------------------
 lr_model = LogisticRegression(max_iter=1000)
 lr_model.fit(X_train_vec, y_train)
 
-# -----------------------------
 # MODEL 2: Naive Bayes
-# -----------------------------
 nb_model = MultinomialNB()
 nb_model.fit(X_train_vec, y_train)
 
-# -----------------------------
 # MODEL 3: Random Forest
-# -----------------------------
 rf_model = RandomForestClassifier(n_estimators=100)
 rf_model.fit(X_train_vec, y_train)
 
-# -----------------------------
 # EVALUATE ALL MODELS
-# -----------------------------
 lr_acc = accuracy_score(y_test, lr_model.predict(X_test_vec))
 nb_acc = accuracy_score(y_test, nb_model.predict(X_test_vec))
 rf_acc = accuracy_score(y_test, rf_model.predict(X_test_vec))
@@ -80,9 +64,7 @@ print(f"Logistic Regression Accuracy: {lr_acc * 100:.2f}%")
 print(f"Naive Bayes Accuracy: {nb_acc * 100:.2f}%")
 print(f"Random Forest Accuracy: {rf_acc * 100:.2f}%")
 
-# -----------------------------
 # SAVE MODELS
-# -----------------------------
 pickle.dump(lr_model, open("lr_model.pkl", "wb"))
 pickle.dump(nb_model, open("nb_model.pkl", "wb"))
 pickle.dump(rf_model, open("rf_model.pkl", "wb"))
